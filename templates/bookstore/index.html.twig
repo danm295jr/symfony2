@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Книжный магазин: отчёты{% endblock %}
+
+{% block body %}
+<style>
+    body { font-family: Arial, sans-serif; margin: 24px; max-width: 900px; }
+    h1 { margin-bottom: 4px; }
+    section { margin: 28px 0; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #999; padding: 8px 10px; text-align: left; }
+    th { background: #f0f0f0; }
+    td.num { text-align: right; white-space: nowrap; }
+    .big { font-size: 28px; font-weight: bold; }
+    .tag { font-size: 12px; padding: 2px 8px; border-radius: 10px; background: #e6e6e6; }
+    .tag.regular { background: #cdeccd; }
+</style>
+
+<h1>Книжный магазин: отчёты</h1>
+
+{# 1. Люди и количество покупок #}
+<section>
+    <h2>1. Покупатели и количество заказов</h2>
+    <table>
+        <thead>
+            <tr><th>Имя</th><th>Почта</th><th>Заказов</th><th>Статус</th></tr>
+        </thead>
+        <tbody>
+        {% for c in customerStats %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.email }}</td>
+                <td class="num">{{ c.ordersCount }}</td>
+                <td>
+                    {% if c.ordersCount >= 2 %}
+                        <span class="tag regular">постоянный</span>
+                    {% elseif c.ordersCount == 1 %}
+                        <span class="tag">случайный</span>
+                    {% else %}
+                        <span class="tag">ещё не покупал</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Покупателей пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{# 2. Заказы и суммы #}
+<section>
+    <h2>2. Заказы и их суммы</h2>
+    <table>
+        <thead>
+            <tr><th>№ заказа</th><th>Покупатель</th><th>Дата</th><th>Сумма</th></tr>
+        </thead>
+        <tbody>
+        {% for o in orders %}
+            <tr>
+                <td>{{ o.id }}</td>
+                <td>{{ o.customerName }}</td>
+                <td>{{ o.createdAt|date('d.m.Y H:i') }}</td>
+                <td class="num">{{ o.orderTotal|number_format(2, ',', ' ') }} ₽</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Заказов пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{# 3. Топ-3 клиента #}
+<section>
+    <h2>3. Топ-3 клиента по потраченной сумме</h2>
+    <table>
+        <thead>
+            <tr><th>#</th><th>Имя</th><th>Почта</th><th>Потратил всего</th></tr>
+        </thead>
+        <tbody>
+        {% for c in topCustomers %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ c.name }}</td>
+                <td>{{ c.email }}</td>
+                <td class="num">{{ c.totalSpent|number_format(2, ',', ' ') }} ₽</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="4">Данных пока нет</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{# 4. Средний заказ #}
+<section>
+    <h2>4. Средняя сумма заказа</h2>
+    <p class="big">{{ averageOrder|number_format(2, ',', ' ') }} ₽</p>
+</section>
+
+{# 5. Самая дорогая книга #}
+<section>
+    <h2>5. Самая дорогая книга</h2>
+    {% for b in expensiveBooks %}
+        <p class="big">{{ b.title }} — {{ b.price|number_format(2, ',', ' ') }} ₽</p>
+    {% else %}
+        <p>Книг пока нет</p>
+    {% endfor %}
+</section>
+{% endblock %}
